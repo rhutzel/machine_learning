@@ -21,7 +21,7 @@ def main():
     # Split off a testing set.
     data_frame_with_id = full_data_frame.reset_index() # adds an index column
     train_set, test_set = test_set_utils.split_train_test_by_id(data_frame_with_id, 0.2, "index")
-    print("Train: %s  /  Test: %s \n" % (train_set.shape, test_set.shape))
+    print("\nShapes: Train = %s  /  Test = %s \n" % (train_set.shape, test_set.shape))
 
     # Display attribute correlations.
     print("Correlations: ", train_set.corr(), "\n")
@@ -30,12 +30,15 @@ def main():
     # A copy of the data without the the house value label.
     train_set_unlabeled = train_set.drop("median_house_value", axis=1)
     train_set_labels = train_set["median_house_value"].copy()
+    test_set_unlabeled = test_set.drop("median_house_value", axis=1)
+    test_set_labels = test_set["median_house_value"].copy()
 
     # Prepare the non-numeric fields.
     numeric_attributes = list(train_set_unlabeled.drop("ocean_proximity", axis=1))
     categorical_attributes = ["ocean_proximity"]
     pipeline = transform_utils.transform_pipeline(categorical_attributes, numeric_attributes)
     train_set_prepared = pipeline.fit_transform(train_set_unlabeled)
+    test_set_prepared = pipeline.transform(test_set_unlabeled)  # Do NOT re-fit the test data.
 
     # How about Linear Regression?
     print("Linear regression RMSE: %d" %
@@ -60,6 +63,12 @@ def main():
     grid_search = GridSearchCV(RandomForestRegressor(), grid_search_params, cv=5, scoring='neg_mean_squared_error')
     grid_search.fit(train_set_prepared, train_set_labels)
     print("\nRandom forest grid search best parameters:\n", grid_search.best_params_)
+
+    # A copy of the data without the the house value label.
+    model = LinearRegression()
+    model.fit(train_set_prepared, train_set_labels)
+    test_set_predictions = model.predict(test_set_prepared)
+    print("\nLinear regression TEST SET RMSE: ", numpy.sqrt(mean_squared_error(test_set_labels, test_set_predictions)))
 
 
 def model_rmse(model, training_set, labels) -> float:
