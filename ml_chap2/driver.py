@@ -1,3 +1,4 @@
+from matplotlib import pyplot
 from pandas.tools.plotting import scatter_matrix
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
@@ -5,7 +6,6 @@ from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from sklearn.tree import DecisionTreeRegressor
 
-import matplotlib.pyplot as plt
 import numpy
 import test_set_utils
 import transform_utils
@@ -84,17 +84,17 @@ def model_cross_validation_scores(model, training_set, labels):
 
 def histograms(data_frame):
     data_frame.hist(bins=50, figsize=(15,10))
-    plt.show()
+    pyplot.show()
 
 
 def scatter_plot(data_frame, alpha):
     data_frame.plot(kind="scatter", x="longitude", y="latitude", alpha=alpha)
-    plt.show()
+    pyplot.show()
 
 
 def visual_correlations(data_frame):
     scatter_matrix(data_frame[["median_house_value", "median_income"]], figsize=(12, 8))
-    plt.show()
+    pyplot.show()
 
 if __name__ == '__main__':
     main()
